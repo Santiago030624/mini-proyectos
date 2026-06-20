@@ -1,4 +1,4 @@
-import fastapi 
+from fastapi import FastAPI
 
 from pydantic import BaseModel
 
@@ -15,7 +15,7 @@ class Usuarios(BaseModel):
     correo: str
     telefono: str
 
-app = fastapi.FastAPI()
+app = FastAPI()
 
 
 # Me permite crear usuarios nuevos, con su nombre, edad, correo y numero de telefono
@@ -208,6 +208,7 @@ def promedio_edades():
     return {"promedio_edades" : promedio}
 
 
+# Me sirve para ayar la edad mas alta de un usuario 
 @app.get("/usuario/mayor_edad")
 def usuario_mayor_edad():
 
@@ -224,6 +225,94 @@ def usuario_mayor_edad():
         if usuario.edad > usuario_mayor.edad:
             usuario_mayor = usuario
 
-    return {"usuario" : usuario,
+    return {"usuario" : usuario_mayor.nombre,
             "edad" : usuario_mayor.edad}
+
+
+
+# Me sirve para sacar la persona mayor 
+@app.get("/usuario/menor_edad")
+def usuario_menor_edad():
+
+    if not lista_usuarios:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = "No se encontraron usuarios registrados"
+        )
+
+
+    usuario_menor = lista_usuarios[0]
+
+    for usuario in lista_usuarios:
+
+        if usuario.edad < usuario_menor.edad:
+            usuario_menor = usuario
+
+    return {"usuario" : usuario_menor.nombre,
+            "edad" : usuario_menor.edad}
+
+
+@app.get("/usuario/etadisticas_edades")
+def estadistica_edades():
+
+    if not lista_usuarios:
+        raise HTTPException(
+            Status_code = status.HTTP_404_NOT_FOUND,
+            detail = "No se encontraron usuarios"
+        )
+
+
+    contar_usuarios = len(lista_usuarios)
+
+    suma_edades = sum(usuario.edad for usuario in lista_usuarios)
+
+    promedio_edades = suma_edades / contar_usuarios
+
+    if not lista_usuarios:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = "No se encontraron usuarios"
+        )
+
+    usuario_mayor_edad = lista_usuarios[0]
+
+    usuario_menor_edad = lista_usuarios[0]
+
+    for usuario in lista_usuarios:
+
+        if usuario.edad > usuario_mayor_edad.edad:
+            usuario_mayor_edad = usuario
+
+        if usuario.edad < usuario_menor_edad.edad:
+            usuario_menor_edad = usuario
+
+    usuarios_mayores = 0
+
+    usuarios_menores = 0
+
+    usuarios_18_30 = 0
+
+    for usuario in lista_usuarios:
+
+        if usuario.edad >= 18 :
+            usuarios_mayores += 1
+
+        if usuario.edad < 18:
+            usuarios_menores += 1
+
+        if 18 >= usuario.edad <= 30:
+            usuarios_18_30 += 1
+
+
+    return {
+        "cantidad_usuarios" : contar_usuarios,
+        "promedio_edades" : promedio_edades,
+        "usuario_mayor" : usuario_mayor_edad.nombre,
+        "edad_maxima" : usuario_mayor_edad.edad,
+        "usuario_menor" : usuario_menor_edad.nombre,
+        "edad_minima" : usuario_menor_edad.edad,
+        "usuarios_mayores_18" : usuarios_mayores,
+        "usuarios_menores_18" : usuarios_menores,
+        "usuarios_entre_18_y_30" : usuarios_18_30
+    }
 
