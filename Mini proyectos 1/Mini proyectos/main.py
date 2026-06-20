@@ -234,6 +234,7 @@ def usuario_mayor_edad():
 @app.get("/usuario/menor_edad")
 def usuario_menor_edad():
 
+# Me verifica si la lista esta vacia
     if not lista_usuarios:
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
@@ -261,37 +262,43 @@ def estadistica_edades():
             detail = "No se encontraron usuarios"
         )
 
-
+# Conteo de usuarios
     contar_usuarios = len(lista_usuarios)
 
+# Suma de edades
     suma_edades = sum(usuario.edad for usuario in lista_usuarios)
 
+# Saca el promedio de las edades
     promedio_edades = suma_edades / contar_usuarios
 
-    if not lista_usuarios:
-        raise HTTPException(
-            status_code = status.HTTP_404_NOT_FOUND,
-            detail = "No se encontraron usuarios"
-        )
 
+
+
+# Lista almacenadoras de edad mas alta y mas baja
     usuario_mayor_edad = lista_usuarios[0]
 
     usuario_menor_edad = lista_usuarios[0]
-
+    
+    # Recorre la lista "lista_usuarios"
     for usuario in lista_usuarios:
 
+        # Filtrado de edad mas alta 
         if usuario.edad > usuario_mayor_edad.edad:
             usuario_mayor_edad = usuario
-
+        
+        # Filtrado de edad mas baja
         if usuario.edad < usuario_menor_edad.edad:
             usuario_menor_edad = usuario
 
+
+# Variables almacenadoras de la cantidad de personas que son mayores y menores de edad
     usuarios_mayores = 0
 
     usuarios_menores = 0
 
     usuarios_18_30 = 0
 
+# Recorre la lista "lista_usuarios" para hacer el filtrado de los mayores y menores de edad
     for usuario in lista_usuarios:
 
         if usuario.edad >= 18 :
@@ -304,6 +311,68 @@ def estadistica_edades():
             usuarios_18_30 += 1
 
 
+
+# En cuentra el nombre mas largo
+    nombre_mas_largo = lista_usuarios[0]
+
+    for usuario in lista_usuarios:
+
+        if len(usuario.nombre) > len(nombre_mas_largo.nombre):
+            nombre_mas_largo = usuario
+
+    
+# En cuentra el nombre mas corto
+    nombre_mas_corto = lista_usuarios[0]
+
+    for usuario in lista_usuarios:
+
+        if len(usuario.nombre) < len(nombre_mas_corto.nombre):
+            nombre_mas_corto = usuario
+
+# Meda el promedio de los caracteres de los nombres
+    suma_nombres = sum(len(usuario.nombre) for usuario in lista_usuarios)
+
+    promedio_nombres = suma_nombres / contar_usuarios
+
+
+
+# Encuentra el correo mas largo
+    correo_mas_largo = lista_usuarios[0]
+
+    for usuario in lista_usuarios:
+
+        if len(usuario.correo) > len(correo_mas_largo.correo):
+            correo_mas_largo = usuario
+
+
+
+# Encuentra el correo mas corto
+    correo_mas_corto = lista_usuarios[0]
+
+    for usuario in lista_usuarios:
+        if len(usuario.correo) < len(correo_mas_corto.correo):
+            correo_mas_corto = usuario
+
+
+# Meda el promedio de los caracteres de los correos
+    sumar_correos = sum(len(usuario.correo) for usuario in lista_usuarios)
+
+    promedio_correos = sumar_correos / contar_usuarios
+
+
+# Da el porcentaje de los mayores de edad
+    porcentaje_mayor = (usuarios_mayores / contar_usuarios) * 100 
+
+
+
+# Da el procentaje de los menores de edad
+    porcentaje_menores = (usuarios_menores / contar_usuarios) * 100
+
+
+
+# Da la diferencia de edad entre el usuario mayor y el menor
+    diferencia_edad = usuario_mayor_edad.edad - usuario_menor_edad.edad
+
     return {
         "cantidad_usuarios" : contar_usuarios,
         "promedio_edades" : promedio_edades,
@@ -313,6 +382,16 @@ def estadistica_edades():
         "edad_minima" : usuario_menor_edad.edad,
         "usuarios_mayores_18" : usuarios_mayores,
         "usuarios_menores_18" : usuarios_menores,
-        "usuarios_entre_18_y_30" : usuarios_18_30
+        "usuarios_entre_18_y_30" : usuarios_18_30,
+        "total_suma_edades" : suma_edades,
+        "nombre_mas_largo" : nombre_mas_largo.nombre,
+        "nombre_mas_corto" : nombre_mas_corto.nombre,
+        "promedio_caracteres_nombres" : promedio_nombres,
+        "correo_mas_largo" : correo_mas_largo.correo,
+        "correo_mas_corto" : correo_mas_corto.correo,
+        "promedio_caracteres_correos" : promedio_correos,
+        "porcentaje_mayor_edad" : f"{porcentaje_mayor}%",
+        "porcentaje_menores_edad" : f"{porcentaje_menores}%",
+        "diferencia_de_edades" : diferencia_edad
     }
 
